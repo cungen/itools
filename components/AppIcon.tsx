@@ -64,7 +64,7 @@ function MiniFavicon({ node }: { node: BookmarkNode }) {
       key={currentUrl}
       src={currentUrl}
       alt=""
-      className="w-4 h-4 object-contain"
+      className="w-4 h-4 object-contain animate-in fade-in duration-500"
       onError={() => {
         if (fallbackLevel < urls.length - 1) {
           setFallbackLevel(prev => prev + 1)
@@ -128,17 +128,18 @@ export function AppIcon({ node, onClick, variant = 'grid' }: AppIconProps) {
   }
 
   if (variant === 'list') {
+    const showContainerStyling = isFolder || fallbackLevel === -1;
     return (
       <div
         className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl cursor-pointer transition-colors group"
         onClick={() => onClick(node)}
       >
-        <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/5">
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 transition-all ${showContainerStyling ? 'bg-white/10 backdrop-blur-md border border-white/5' : 'bg-transparent border-none'}`}>
            {isFolder ? (
-             <Folder size={20} color="#fff" strokeWidth={1.5} />
+             <Folder size={20} color="#fff" strokeWidth={1.5} className="opacity-70" />
            ) : (
              fallbackLevel !== -1 ? (
-               <img key={currentFaviconUrl} src={currentFaviconUrl} alt="" className="w-6 h-6 object-contain" onError={handleIconError} />
+               <img key={currentFaviconUrl} src={currentFaviconUrl} alt="" className="w-full h-full object-cover animate-in fade-in duration-500" onError={handleIconError} />
              ) : (
                <div className="text-xl">{getEmojiFallback(node.title, node.url)}</div>
              )
@@ -153,26 +154,27 @@ export function AppIcon({ node, onClick, variant = 'grid' }: AppIconProps) {
   }
 
   if (variant === 'gallery') {
+    const showContainerStyling = isFolder || fallbackLevel === -1;
     return (
       <div
         className="w-full flex flex-col gap-3 p-4 bg-white/5 hover:bg-white/10 backdrop-blur-md rounded-[24px] cursor-pointer transition-all duration-300 border border-white/10 group hover:-translate-y-1 hover:shadow-2xl"
         onClick={() => onClick(node)}
       >
-        <div className="w-full aspect-square bg-black/20 rounded-[18px] flex items-center justify-center overflow-hidden border border-white/5">
+        <div className={`w-full aspect-square rounded-[18px] flex items-center justify-center overflow-hidden transition-all ${showContainerStyling ? 'bg-black/20 border border-white/5' : 'bg-transparent border-none'}`}>
            {isFolder ? (
               <div className="grid grid-cols-2 grid-rows-2 gap-1 p-3 w-full h-full">
                 {node.children?.slice(0, 4).map(child => (
-                  <div key={child.id} className="w-full h-full flex items-center justify-center bg-white/5 rounded-lg">
-                    <MiniFavicon node={child} />
-                  </div>
+                   <div key={child.id} className="w-full h-full flex items-center justify-center bg-white/5 rounded-lg overflow-hidden">
+                     <MiniFavicon node={child} />
+                   </div>
                 ))}
-                {(!node.children || node.children.length === 0) && <Folder size={48} color="#fff" strokeWidth={1} className="opacity-50" />}
+                {(!node.children || node.children.length === 0) && <Folder size={42} color="#fff" strokeWidth={1} className="opacity-50" />}
               </div>
            ) : (
              fallbackLevel !== -1 ? (
-               <img key={currentFaviconUrl} src={currentFaviconUrl} alt="" className="w-16 h-16 object-contain drop-shadow-2xl" onError={handleIconError} />
+               <img key={currentFaviconUrl} src={currentFaviconUrl} alt="" className="w-full h-full object-cover animate-in fade-in duration-500" onError={handleIconError} />
              ) : (
-               <div className="text-5xl">{getEmojiFallback(node.title, node.url)}</div>
+               <div className="text-5xl scale-110">{getEmojiFallback(node.title, node.url)}</div>
              )
            )}
         </div>
@@ -185,25 +187,26 @@ export function AppIcon({ node, onClick, variant = 'grid' }: AppIconProps) {
   }
 
   // Default Grid
+  const showContainerStyling = isFolder || fallbackLevel === -1;
   return (
     <div className="flex flex-col items-center gap-2 cursor-pointer w-[100px] group transition-all duration-200" onClick={() => onClick(node)}>
-      <div className="w-[68px] h-[68px] bg-white/10 backdrop-blur-xl rounded-[22px] flex items-center justify-center overflow-hidden shadow-lg border border-white/10 transition-all duration-300 group-hover:bg-white/20 group-hover:scale-105 group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:border-white/30">
+      <div className={`w-[68px] h-[68px] rounded-[22px] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1 ${showContainerStyling ? 'bg-white/10 backdrop-blur-xl shadow-lg border border-white/10 group-hover:bg-white/20 group-hover:shadow-2xl group-hover:border-white/30' : 'bg-transparent border-none shadow-none group-hover:shadow-none'}`}>
         {isFolder ? (
            <div className="grid grid-cols-2 grid-rows-2 gap-[2px] p-2.5 w-full h-full">
              {node.children?.slice(0, 4).map(child => (
-               <div key={child.id} className="w-full h-full flex items-center justify-center">
+               <div key={child.id} className="w-full h-full flex items-center justify-center overflow-hidden">
                  <MiniFavicon node={child} />
                </div>
              ))}
-             {(!node.children || node.children.length === 0) && <Folder size={32} color="#fff" strokeWidth={1.5} />}
+             {(!node.children || node.children.length === 0) && <Folder size={32} color="#fff" strokeWidth={1.5} className="opacity-80" />}
            </div>
         ) : (
           fallbackLevel !== -1 ? (
             <img
-              key={currentFaviconUrl} // Key helps reload img correctly when URL changes
+              key={currentFaviconUrl}
               src={currentFaviconUrl}
               alt={node.title}
-              className="w-12 h-12 object-contain"
+              className="w-[42px] h-[42px] object-cover animate-in fade-in duration-500"
               onError={handleIconError}
             />
           ) : (
