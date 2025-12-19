@@ -23,8 +23,8 @@ export function Launchpad({ rootNodes }: LaunchpadProps) {
   }
 
   return (
-    <div className="launchpad-container">
-      <div className="launchpad-grid">
+    <div className="w-full flex justify-center">
+      <div className="grid grid-cols-fill-100 gap-8 w-full max-w-7xl justify-items-center p-8">
         {rootNodes.map(node => (
           <AppIcon key={node.id} node={node} onClick={handleItemClick} />
         ))}
@@ -32,6 +32,7 @@ export function Launchpad({ rootNodes }: LaunchpadProps) {
 
       {openFolder && (
         <FolderOverlay
+          key={openFolder.id}
           folder={openFolder}
           onClose={() => {
             console.log("Launchpad: Closing folder");
