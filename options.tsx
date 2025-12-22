@@ -37,7 +37,7 @@ function Options() {
 
         <div className="setting-control">
           <label>Grid Size</label>
-           <select
+          <select
             value={settings.gridSize}
             onChange={(e) => updateSetting("gridSize", e.target.value)}
           >

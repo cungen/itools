@@ -33,10 +33,21 @@
       "bookmarks",
       "management",
       "favicon",
-      "storage"
+      "storage",
+      "tabs",
+      "activeTab"
     ],
     "host_permissions": [
       "https://*/*"
-    ]
+    ],
+    "commands": {
+      "open-tab-manager": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+M",
+          "mac": "Command+Shift+M"
+        },
+        "description": "Open Tab Manager"
+      }
+    }
   }
 }
