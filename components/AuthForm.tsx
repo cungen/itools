@@ -92,7 +92,7 @@ export function AuthForm({ onClose }: AuthFormProps) {
   }
 
   return (
-    <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg w-full max-w-md">
+    <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg w-96">
       {onClose && (
         <button
           onClick={onClose}

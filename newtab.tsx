@@ -3,6 +3,7 @@ import { useBookmarks } from "./hooks/useBookmarks"
 import { useAuth } from "./hooks/useAuth"
 import { Launchpad } from "./components/Launchpad"
 import { AuthForm } from "./components/AuthForm"
+import { ToolsSection } from "./components/ToolsSection"
 import { LogIn, LogOut, User } from "lucide-react"
 import "./style.css"
 
@@ -67,6 +68,9 @@ function NewTab() {
             </div>
           </div>
         )}
+
+        {/* Tools Section */}
+        {isAuthenticated && <ToolsSection isAuthenticated={isAuthenticated} />}
 
         {/* Search Input */}
         <div className="w-full max-w-xl relative group">
