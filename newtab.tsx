@@ -1,24 +1,73 @@
 import { useState } from "react"
 import { useBookmarks } from "./hooks/useBookmarks"
+import { useAuth } from "./hooks/useAuth"
 import { Launchpad } from "./components/Launchpad"
+import { AuthForm } from "./components/AuthForm"
+import { LogIn, LogOut, User } from "lucide-react"
 import "./style.css"
 
 function NewTab() {
   const { bookmarks, loading } = useBookmarks()
+  const { user, loading: authLoading, signOut, isAuthenticated } = useAuth()
   const [searchQuery, setSearchQuery] = useState("")
+  const [showAuthForm, setShowAuthForm] = useState(false)
 
   const filteredBookmarks = searchQuery
     ? filterBookmarks(bookmarks, searchQuery)
     : bookmarks
 
-  if (loading) {
+  if (loading || authLoading) {
     return <div className="flex items-center justify-center min-h-screen text-slate-500">Loading...</div>
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
   }
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen w-screen px-8 py-16 bg-transparent relative overflow-hidden">
       {/* Background Image is handled in body or separate bg component, if not replacing body style yet, kept as is or moved to classes */}
       <div className="z-10 w-full max-w-4xl flex flex-col items-center gap-12">
+        {/* Auth Status Indicator */}
+        <div className="absolute top-4 right-4 z-20">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white">
+                <User size={16} />
+                <span className="text-sm">{user?.email}</span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white hover:bg-white/15 transition-colors"
+                title="Sign out"
+              >
+                <LogOut size={16} />
+                <span className="text-sm">Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAuthForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white hover:bg-white/15 transition-colors"
+            >
+              <LogIn size={16} />
+              <span className="text-sm">Sign In</span>
+            </button>
+          )}
+        </div>
+
+        {/* Auth Form Modal */}
+        {showAuthForm && !isAuthenticated && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowAuthForm(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()}>
+              <AuthForm onClose={() => setShowAuthForm(false)} />
+            </div>
+          </div>
+        )}
+
         {/* Search Input */}
         <div className="w-full max-w-xl relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
