@@ -10,6 +10,13 @@ import {
   parseVariablesFromContent,
   validateVariables,
 } from "../hooks/usePromptVariables"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Textarea } from "./ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Checkbox } from "./ui/checkbox"
+import { Card, CardContent } from "./ui/card"
 
 interface PromptEditorProps {
   prompt?: Prompt | null
@@ -170,41 +177,43 @@ export function PromptEditor({
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-h-[calc(90vh-120px)] overflow-y-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-white">
           {prompt ? "Edit Prompt" : "Create Prompt"}
         </h2>
-        <button
-          onClick={onCancel}
-          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-        >
+        <Button variant="ghost" size="icon" onClick={onCancel}>
           <X size={20} />
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
-          {error}
-        </div>
+        <Card className="bg-red-500/20 border-red-500/50">
+          <CardContent className="p-3">
+            <p className="text-red-300 text-sm">{error}</p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Emoji */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white">Emoji</label>
+        <Label>Emoji</Label>
         <div className="flex items-center gap-2">
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="w-12 h-12 text-2xl"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="w-12 h-12 flex items-center justify-center bg-white/10 border border-white/20 rounded-lg text-2xl hover:bg-white/15 transition-colors"
           >
             {emoji || "😀"}
-          </button>
-          <input
+          </Button>
+          <Input
             type="text"
             value={emoji}
             onChange={(e) => setEmoji(e.target.value)}
             placeholder="Or type emoji"
-            className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50"
             maxLength={2}
           />
         </div>
@@ -228,33 +237,33 @@ export function PromptEditor({
 
       {/* Title */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white">Title</label>
-        <input
+        <Label>Title</Label>
+        <Input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           placeholder="Enter prompt title"
+          className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
         />
       </div>
 
       {/* Content */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white">Content</label>
-        <textarea
+        <Label>Content</Label>
+        <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={8}
-          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
           placeholder="Enter prompt content. Use {{variableName}} for variables."
+          className="bg-white/10 border-white/20 text-white placeholder:text-white/50 resize-none"
         />
       </div>
 
       {/* Tags */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white">Tags</label>
+        <Label>Tags</Label>
         <div className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
@@ -265,14 +274,11 @@ export function PromptEditor({
               }
             }}
             placeholder="Add tag (e.g., #work/coding)"
-            className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50"
           />
-          <button
-            onClick={handleAddTag}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-          >
+          <Button onClick={handleAddTag} size="icon">
             <Plus size={16} />
-          </button>
+          </Button>
         </div>
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -282,12 +288,14 @@ export function PromptEditor({
                 className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm"
               >
                 {tag}
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-4 w-4"
                   onClick={() => handleRemoveTag(tag)}
-                  className="hover:text-blue-100"
                 >
                   <X size={12} />
-                </button>
+                </Button>
               </span>
             ))}
           </div>
@@ -297,116 +305,120 @@ export function PromptEditor({
       {/* Variables */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <label className="block text-sm font-medium text-white">
-            Variables
-          </label>
-          <button
+          <Label>Variables</Label>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleAddVariable}
-            className="flex items-center gap-1 px-3 py-1 bg-white/10 hover:bg-white/15 text-white rounded-lg transition-colors text-sm"
           >
             <Plus size={14} />
             Add Variable
-          </button>
+          </Button>
         </div>
         {variables.length > 0 && (
           <div className="space-y-3">
             {variables.map((variable, index) => (
-              <div
-                key={index}
-                className="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2"
-              >
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={variable.name}
-                    onChange={(e) =>
-                      handleUpdateVariable(index, { name: e.target.value })
-                    }
-                    className="flex-1 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm placeholder-white/50"
-                    placeholder="Variable name"
-                  />
-                  <select
-                    value={variable.type}
-                    onChange={(e) =>
-                      handleUpdateVariable(index, {
-                        type: e.target.value as PromptVariable["type"],
-                        config: {},
-                      })
-                    }
-                    className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                  >
-                    <option value="string">String</option>
-                    <option value="number">Number</option>
-                    <option value="enum">Enum</option>
-                    <option value="prompt">Prompt</option>
-                  </select>
-                  <button
-                    onClick={() => handleRemoveVariable(index)}
-                    className="p-1 text-white/70 hover:text-red-400"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-                {variable.type === "number" && (
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      value={variable.config.min || ""}
+              <Card key={index} className="bg-white/5 border-white/10">
+                <CardContent className="p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={variable.name}
                       onChange={(e) =>
+                        handleUpdateVariable(index, { name: e.target.value })
+                      }
+                      placeholder="Variable name"
+                      className="flex-1 bg-white/10 border-white/20 text-white text-sm placeholder:text-white/50"
+                    />
+                    <Select
+                      value={variable.type}
+                      onValueChange={(value) =>
                         handleUpdateVariable(index, {
-                          config: {
-                            ...variable.config,
-                            min: e.target.value
-                              ? parseFloat(e.target.value)
-                              : undefined,
-                          },
+                          type: value as PromptVariable["type"],
+                          config: {},
                         })
                       }
-                      placeholder="Min"
-                      className="w-24 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                    />
-                    <input
-                      type="number"
-                      value={variable.config.max || ""}
-                      onChange={(e) =>
-                        handleUpdateVariable(index, {
-                          config: {
-                            ...variable.config,
-                            max: e.target.value
-                              ? parseFloat(e.target.value)
-                              : undefined,
-                          },
-                        })
-                      }
-                      placeholder="Max"
-                      className="w-24 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                    />
+                    >
+                      <SelectTrigger className="w-[120px] bg-white/10 border-white/20 text-white text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="string">String</SelectItem>
+                        <SelectItem value="number">Number</SelectItem>
+                        <SelectItem value="enum">Enum</SelectItem>
+                        <SelectItem value="prompt">Prompt</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleRemoveVariable(index)}
+                    >
+                      <Trash2 size={14} />
+                    </Button>
                   </div>
-                )}
-                {variable.type === "enum" && (
-                  <input
-                    type="text"
-                    value={
-                      Array.isArray(variable.config.options)
-                        ? variable.config.options.join(", ")
-                        : ""
-                    }
-                    onChange={(e) =>
-                      handleUpdateVariable(index, {
-                        config: {
-                          ...variable.config,
-                          options: e.target.value
-                            .split(",")
-                            .map((s) => s.trim())
-                            .filter(Boolean),
-                        },
-                      })
-                    }
-                    placeholder="Options (comma-separated)"
-                    className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm placeholder-white/50"
-                  />
-                )}
-              </div>
+                  {variable.type === "number" && (
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        value={variable.config.min || ""}
+                        onChange={(e) =>
+                          handleUpdateVariable(index, {
+                            config: {
+                              ...variable.config,
+                              min: e.target.value
+                                ? parseFloat(e.target.value)
+                                : undefined,
+                            },
+                          })
+                        }
+                        placeholder="Min"
+                        className="w-24 bg-white/10 border-white/20 text-white text-sm"
+                      />
+                      <Input
+                        type="number"
+                        value={variable.config.max || ""}
+                        onChange={(e) =>
+                          handleUpdateVariable(index, {
+                            config: {
+                              ...variable.config,
+                              max: e.target.value
+                                ? parseFloat(e.target.value)
+                                : undefined,
+                            },
+                          })
+                        }
+                        placeholder="Max"
+                        className="w-24 bg-white/10 border-white/20 text-white text-sm"
+                      />
+                    </div>
+                  )}
+                  {variable.type === "enum" && (
+                    <Input
+                      type="text"
+                      value={
+                        Array.isArray(variable.config.options)
+                          ? variable.config.options.join(", ")
+                          : ""
+                      }
+                      onChange={(e) =>
+                        handleUpdateVariable(index, {
+                          config: {
+                            ...variable.config,
+                            options: e.target.value
+                              .split(",")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          },
+                        })
+                      }
+                      placeholder="Options (comma-separated)"
+                      className="bg-white/10 border-white/20 text-white text-sm placeholder:text-white/50"
+                    />
+                  )}
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
@@ -414,34 +426,25 @@ export function PromptEditor({
 
       {/* Public toggle */}
       <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
+        <Checkbox
           id="isPublic"
           checked={isPublic}
-          onChange={(e) => setIsPublic(e.target.checked)}
-          className="w-4 h-4 rounded"
+          onCheckedChange={(checked) => setIsPublic(checked === true)}
         />
-        <label htmlFor="isPublic" className="text-sm text-white">
+        <Label htmlFor="isPublic" className="text-sm cursor-pointer">
           Make this prompt public
-        </label>
+        </Label>
       </div>
 
       {/* Actions */}
       <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-        <button
-          onClick={onCancel}
-          className="px-4 py-2 text-white/70 hover:text-white transition-colors"
-        >
+        <Button variant="ghost" onClick={onCancel}>
           Cancel
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50"
-        >
+        </Button>
+        <Button onClick={handleSave} disabled={saving}>
           <Save size={16} />
           {saving ? "Saving..." : "Save"}
-        </button>
+        </Button>
       </div>
     </div>
   )

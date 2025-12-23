@@ -72,28 +72,35 @@ export const usePrompts = (user: User | null) => {
 
       // Fetch tags for all prompts
       const promptIds = promptsData?.map((p) => p.id) || []
-      const { data: tagsData, error: tagsError } = await supabase
-        .from("prompt_tags")
-        .select("prompt_id, tag_path")
-        .in("prompt_id", promptIds)
+      let tagsData = []
+      let variablesData = []
 
-      if (tagsError) throw tagsError
+      if (promptIds.length > 0) {
+        const { data: tags, error: tagsError } = await supabase
+          .from("prompt_tags")
+          .select("prompt_id, tag_path")
+          .in("prompt_id", promptIds)
 
-      // Fetch variables for all prompts
-      const { data: variablesData, error: variablesError } = await supabase
-        .from("prompt_variables")
-        .select("*")
-        .in("prompt_id", promptIds)
-        .order("order_index", { ascending: true })
+        if (tagsError) throw tagsError
+        tagsData = tags || []
 
-      if (variablesError) throw variablesError
+        // Fetch variables for all prompts
+        const { data: variables, error: variablesError } = await supabase
+          .from("prompt_variables")
+          .select("*")
+          .in("prompt_id", promptIds)
+          .order("order_index", { ascending: true })
+
+        if (variablesError) throw variablesError
+        variablesData = variables || []
+      }
 
       // Combine data
       const promptsWithRelations = (promptsData || []).map((prompt) => {
-        const tags = (tagsData || [])
+        const tags = tagsData
           .filter((t) => t.prompt_id === prompt.id)
           .map((t) => t.tag_path)
-        const variables = (variablesData || []).filter(
+        const variables = variablesData.filter(
           (v) => v.prompt_id === prompt.id
         )
 
@@ -330,16 +337,16 @@ export const usePrompts = (user: User | null) => {
       if (error) throw error
 
       // Fetch tags and variables for results
-      const promptIds = data?.map((p) => p.id) || []
+      const resultPromptIds = data?.map((p) => p.id) || []
       const [tagsResult, variablesResult] = await Promise.all([
         supabase
           .from("prompt_tags")
           .select("prompt_id, tag_path")
-          .in("prompt_id", promptIds),
+          .in("prompt_id", resultPromptIds),
         supabase
           .from("prompt_variables")
           .select("*")
-          .in("prompt_id", promptIds)
+          .in("prompt_id", resultPromptIds)
           .order("order_index", { ascending: true }),
       ])
 

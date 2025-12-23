@@ -1,15 +1,22 @@
 import { useState } from "react"
 import { useBookmarks } from "./hooks/useBookmarks"
 import { useAuth } from "./hooks/useAuth"
+import { useEnvironment } from "./hooks/useEnvironment"
 import { Launchpad } from "./components/Launchpad"
 import { AuthForm } from "./components/AuthForm"
 import { ToolsSection } from "./components/ToolsSection"
-import { LogIn, LogOut, User } from "lucide-react"
+import { BookmarkUpload } from "./components/BookmarkUpload"
+import { LogIn, LogOut, User, Search } from "lucide-react"
+import { Input } from "./components/ui/input"
+import { Button } from "./components/ui/button"
+import { Card, CardContent } from "./components/ui/card"
+import { Dialog, DialogContent } from "./components/ui/dialog"
 import "./style.css"
 
 function NewTab() {
-  const { bookmarks, loading } = useBookmarks()
+  const { bookmarks, loading, updateBookmarksFromUpload } = useBookmarks()
   const { user, loading: authLoading, signOut, isAuthenticated } = useAuth()
+  const { isWeb } = useEnvironment()
   const [searchQuery, setSearchQuery] = useState("")
   const [showAuthForm, setShowAuthForm] = useState(false)
 
@@ -25,6 +32,20 @@ function NewTab() {
     await signOut()
   }
 
+  const handleBookmarkUploadSuccess = async (uploadedBookmarks: any[]) => {
+    const result = await updateBookmarksFromUpload(uploadedBookmarks)
+    if (result.error) {
+      console.error("Failed to save bookmarks:", result.error)
+    }
+  }
+
+  const handleBookmarkUploadError = (error: string) => {
+    console.error("Bookmark upload error:", error)
+  }
+
+  // Show upload UI in web mode when authenticated but no bookmarks
+  const showUploadUI = isWeb && isAuthenticated && !loading && bookmarks.length === 0
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen w-screen px-8 py-16 bg-transparent relative overflow-hidden">
       {/* Background Image is handled in body or separate bg component, if not replacing body style yet, kept as is or moved to classes */}
@@ -37,63 +58,89 @@ function NewTab() {
                 <User size={16} />
                 <span className="text-sm">{user?.email}</span>
               </div>
-              <button
+              <Button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white hover:bg-white/15 transition-colors"
+                variant="ghost"
+                size="sm"
+                className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15"
                 title="Sign out"
               >
                 <LogOut size={16} />
                 <span className="text-sm">Sign Out</span>
-              </button>
+              </Button>
             </div>
           ) : (
-            <button
+            <Button
               onClick={() => setShowAuthForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white hover:bg-white/15 transition-colors"
+              variant="ghost"
+              size="sm"
+              className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15"
             >
               <LogIn size={16} />
               <span className="text-sm">Sign In</span>
-            </button>
+            </Button>
           )}
         </div>
 
         {/* Auth Form Modal */}
-        {showAuthForm && !isAuthenticated && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowAuthForm(false)}
-          >
-            <div onClick={(e) => e.stopPropagation()}>
+        <Dialog open={showAuthForm && !isAuthenticated} onOpenChange={setShowAuthForm}>
+          <DialogContent className="bg-slate-900/95 backdrop-blur-md border-white/20 !p-0">
+            <div className="p-6 flex items-center justify-center">
               <AuthForm onClose={() => setShowAuthForm(false)} />
             </div>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
 
         {/* Tools Section */}
         {isAuthenticated && <ToolsSection isAuthenticated={isAuthenticated} />}
 
-        {/* Search Input */}
-        <div className="w-full max-w-xl relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg
-              className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-            </svg>
+        {/* Bookmark Upload UI (web mode, authenticated, no bookmarks) */}
+        {showUploadUI && (
+          <div className="w-full max-w-2xl">
+            <BookmarkUpload
+              onUploadSuccess={handleBookmarkUploadSuccess}
+              onUploadError={handleBookmarkUploadError}
+            />
           </div>
-          <input
-            type="text"
-            className="block w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-lg hover:bg-white/15 transition-all duration-200"
-            placeholder="Search bookmarks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        )}
 
-        <Launchpad rootNodes={filteredBookmarks} />
+        {/* Search Input */}
+        {!showUploadUI && (
+          <div className="w-full max-w-xl relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+            <Input
+              type="text"
+              className="pl-10 bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-slate-400 focus-visible:ring-blue-500/50 hover:bg-white/15 rounded-2xl"
+              placeholder="Search bookmarks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        )}
+
+        {/* Bookmarks Launchpad */}
+        {!showUploadUI && <Launchpad rootNodes={filteredBookmarks} />}
+
+        {/* Web mode authentication prompt for bookmarks */}
+        {isWeb && !isAuthenticated && (
+          <div className="w-full max-w-2xl text-center">
+            <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white p-6">
+              <CardContent className="p-0">
+                <p className="text-lg mb-4">
+                  Sign in to upload and access your bookmarks
+                </p>
+                <Button
+                  onClick={() => setShowAuthForm(true)}
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <LogIn size={16} />
+                  <span>Sign In</span>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )

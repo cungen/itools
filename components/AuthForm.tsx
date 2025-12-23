@@ -1,6 +1,9 @@
 import { useState } from "react"
 import { useAuth } from "../hooks/useAuth"
-import { LogIn, UserPlus, X } from "lucide-react"
+import { LogIn, UserPlus } from "lucide-react"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Button } from "./ui/button"
 
 type AuthMode = "signin" | "signup"
 
@@ -48,13 +51,27 @@ export function AuthForm({ onClose }: AuthFormProps) {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setEmail(value)
-    validateEmail(value)
+    // Clear error when user starts typing again
+    if (emailError) {
+      setEmailError(null)
+    }
+  }
+
+  const handleEmailBlur = () => {
+    validateEmail(email)
   }
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setPassword(value)
-    validatePassword(value)
+    // Clear error when user starts typing again
+    if (passwordError) {
+      setPasswordError(null)
+    }
+  }
+
+  const handlePasswordBlur = () => {
+    validatePassword(password)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,17 +109,7 @@ export function AuthForm({ onClose }: AuthFormProps) {
   }
 
   return (
-    <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-lg w-96">
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
-          aria-label="Close"
-        >
-          <X size={20} />
-        </button>
-      )}
-
+    <div className="relative w-96">
       <div className="flex items-center gap-3 mb-6">
         {mode === "signin" ? (
           <LogIn className="text-blue-400" size={24} />
@@ -115,22 +122,18 @@ export function AuthForm({ onClose }: AuthFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-slate-300 mb-2"
-          >
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-slate-300">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             type="email"
             value={email}
             onChange={handleEmailChange}
-            className={`block w-full px-4 py-3 bg-white/10 backdrop-blur-sm border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 ${
-              emailError
-                ? "border-red-400"
-                : "border-white/20 hover:bg-white/15"
+            onBlur={handleEmailBlur}
+            className={`bg-white/10 backdrop-blur-sm border-white/20 text-white placeholder:text-slate-400 focus-visible:ring-blue-500/50 hover:bg-white/15 ${
+              emailError ? "border-red-400" : ""
             }`}
             placeholder="you@example.com"
             disabled={isSubmitting}
@@ -141,22 +144,18 @@ export function AuthForm({ onClose }: AuthFormProps) {
           )}
         </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-slate-300 mb-2"
-          >
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-slate-300">
             Password
-          </label>
-          <input
+          </Label>
+          <Input
             id="password"
             type="password"
             value={password}
             onChange={handlePasswordChange}
-            className={`block w-full px-4 py-3 bg-white/10 backdrop-blur-sm border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 ${
-              passwordError
-                ? "border-red-400"
-                : "border-white/20 hover:bg-white/15"
+            onBlur={handlePasswordBlur}
+            className={`bg-white/10 backdrop-blur-sm border-white/20 text-white placeholder:text-slate-400 focus-visible:ring-blue-500/50 hover:bg-white/15 ${
+              passwordError ? "border-red-400" : ""
             }`}
             placeholder="••••••••"
             disabled={isSubmitting}
@@ -174,10 +173,10 @@ export function AuthForm({ onClose }: AuthFormProps) {
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
           disabled={isSubmitting || !email || !password}
-          className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
+          className="w-full"
         >
           {isSubmitting ? (
             <>
@@ -187,19 +186,20 @@ export function AuthForm({ onClose }: AuthFormProps) {
           ) : (
             <span>{mode === "signin" ? "Sign In" : "Sign Up"}</span>
           )}
-        </button>
+        </Button>
 
         <div className="text-center">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={switchMode}
             disabled={isSubmitting}
-            className="text-sm text-slate-300 hover:text-white transition-colors"
+            className="text-sm text-slate-300 hover:text-white"
           >
             {mode === "signin"
               ? "Don't have an account? Sign up"
               : "Already have an account? Sign in"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

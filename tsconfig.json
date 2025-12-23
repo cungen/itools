@@ -6,9 +6,11 @@
   "include": [
     ".plasmo/index.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "vite-env.d.ts"
   ],
   "compilerOptions": {
+    "jsx": "react-jsx",
     "paths": {
       "~*": [
         "./*"

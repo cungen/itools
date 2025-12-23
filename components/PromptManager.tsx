@@ -9,6 +9,9 @@ import {
   substituteVariables,
   resolvePromptVariable,
 } from "../hooks/usePromptVariables"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Card, CardContent } from "./ui/card"
 
 interface PromptManagerProps {
   onClose: () => void
@@ -48,6 +51,7 @@ export function PromptManager({ onClose }: PromptManagerProps) {
       }
     }
     filter()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, tagFilter, prompts])
 
   const handleCreate = () => {
@@ -138,21 +142,22 @@ export function PromptManager({ onClose }: PromptManagerProps) {
 
   if (usingPrompt) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 max-h-[calc(90vh-120px)] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-white">
             Use Prompt: {usingPrompt.title}
           </h2>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => {
               setUsingPrompt(null)
               setVariableValues({})
               setResolvedContent(null)
             }}
-            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-4">
@@ -172,12 +177,9 @@ export function PromptManager({ onClose }: PromptManagerProps) {
                   prompts={prompts}
                 />
               ))}
-              <button
-                onClick={handleResolvePrompt}
-                className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-              >
+              <Button onClick={handleResolvePrompt} className="w-full">
                 Resolve Prompt
-              </button>
+              </Button>
             </>
           ) : (
             <div className="p-4 bg-white/5 rounded-lg text-white/70">
@@ -190,10 +192,15 @@ export function PromptManager({ onClose }: PromptManagerProps) {
               <label className="block text-sm font-medium text-white">
                 Resolved Prompt
               </label>
-              <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-white whitespace-pre-wrap">
-                {resolvedContent}
-              </div>
-              <button
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4">
+                  <div className="text-white whitespace-pre-wrap">
+                    {resolvedContent}
+                  </div>
+                </CardContent>
+              </Card>
+              <Button
+                variant="outline"
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(resolvedContent)
@@ -201,10 +208,9 @@ export function PromptManager({ onClose }: PromptManagerProps) {
                     console.error("Failed to copy:", err)
                   }
                 }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-lg transition-colors"
               >
                 Copy to Clipboard
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -213,16 +219,13 @@ export function PromptManager({ onClose }: PromptManagerProps) {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-h-[calc(90vh-120px)] overflow-y-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-white">My Prompts</h2>
-        <button
-          onClick={handleCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-        >
+        <Button onClick={handleCreate}>
           <Plus size={16} />
           Create Prompt
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -236,31 +239,32 @@ export function PromptManager({ onClose }: PromptManagerProps) {
         <div className="relative">
           <Search
             size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
           />
-          <input
+          <Input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search prompts..."
-            className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
           />
         </div>
         <div className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={tagFilter}
             onChange={(e) => setTagFilter(e.target.value)}
             placeholder="Filter by tag (e.g., #work)"
-            className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50"
           />
           {tagFilter && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setTagFilter("")}
-              className="px-3 py-2 text-white/70 hover:text-white"
             >
               <X size={16} />
-            </button>
+            </Button>
           )}
         </div>
       </div>
